@@ -1,11 +1,11 @@
 import type { Booth, BoothType } from "./types";
 
-// Darkroom palette from the Out There brand.
+// Map / pin palette — pink (analog), blue (digital), green (booth shop).
 export const COLORS = {
-  analog: "#0f9d92", // darkroom teal
-  digital: "#e0922f", // amber
-  dedicated: "#9c4f86", // booth-violet
-  verify: "#9a9488", // uncertain grey
+  analog: "#f0506e", // analog film — rose/red
+  digital: "#3d7eed", // digital — blue
+  dedicated: "#2fb37e", // booth shop — green
+  verify: "#98a0a8", // uncertain grey
 } as const;
 
 export const TYPE_LABEL: Record<BoothType, string> = {

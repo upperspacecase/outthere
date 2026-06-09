@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Anton, Space_Mono, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-anton" });
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-space-mono",
-});
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
 });
 
@@ -24,10 +18,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${anton.variable} ${spaceMono.variable} ${inter.variable} h-full`}
-    >
+    <html lang="en" className={`${inter.variable} h-full`}>
       <body className="h-full">{children}</body>
     </html>
   );
