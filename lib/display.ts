@@ -87,9 +87,20 @@ export function queueLabel(b: Slugged): string {
   ];
 }
 
-export function paymentLabel(b: Pick<Booth, "slug" | "payment">): string {
+// Price as shown to users. Only "Free" when truly free; otherwise the real
+// price, or an honest "Not listed" when we don't have one (most venue booths).
+export function priceLabel(b: Pick<Booth, "price">): string {
+  return b.price ?? "Not listed";
+}
+
+// Payment is NOT fabricated — show it only from a real field or when the
+// note explicitly states it, so it never contradicts the description.
+export function paymentLabel(
+  b: Pick<Booth, "payment" | "note">,
+): string | null {
   if (b.payment) return b.payment;
-  return ["Card & cash", "Card only", "Cash only"][hashStr(b.slug + "pay") % 3];
+  if (b.note && /cash[-\s]?only/i.test(b.note)) return "Cash only";
+  return null;
 }
 
 /* ---- Price & distance filtering ---- */

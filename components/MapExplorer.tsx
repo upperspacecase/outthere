@@ -12,6 +12,7 @@ import {
   badgeLabel,
   directionsUrl,
   isOpenNow,
+  priceLabel,
   matchesPriceTier,
   type PriceTier,
   type LatLng,
@@ -361,7 +362,7 @@ function BoothCard({
         <span className="card-bottom">
           <span className="price-block">
             <span className="price-label">Price</span>
-            <span className="price-val">{b.price ?? "Free"}</span>
+            <span className="price-val">{priceLabel(b)}</span>
           </span>
           <a
             className="directions"

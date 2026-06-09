@@ -11,6 +11,7 @@ import {
   ratingValue,
   reviewCount,
   queueLabel,
+  priceLabel,
   paymentLabel,
   distanceMiles,
   formatMiles,
@@ -48,6 +49,7 @@ export default function BoothDetail({
 
   const color = markerColor(b);
   const open = isOpenNow(b);
+  const payment = paymentLabel(b);
   const place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
 
@@ -106,8 +108,8 @@ export default function BoothDetail({
             <div className="drow">
               <CardIcon className="drow-ico" />
               <div>
-                <div className="drow-main">{b.price ?? "Free"}</div>
-                <div className="drow-sub">{paymentLabel(b)}</div>
+                <div className="drow-main">{priceLabel(b)}</div>
+                {payment && <div className="drow-sub">{payment}</div>}
               </div>
             </div>
             <div className="drow">
