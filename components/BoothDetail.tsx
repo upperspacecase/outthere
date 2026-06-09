@@ -12,6 +12,9 @@ import {
   reviewCount,
   queueLabel,
   paymentLabel,
+  distanceMiles,
+  formatMiles,
+  type LatLng,
 } from "@/lib/display";
 import {
   PinIcon,
@@ -25,11 +28,13 @@ import {
 
 export default function BoothDetail({
   booth: b,
+  userLoc,
   saved,
   onToggleSave,
   onClose,
 }: {
   booth: Booth;
+  userLoc: LatLng | null;
   saved: boolean;
   onToggleSave: () => void;
   onClose: () => void;
@@ -83,11 +88,10 @@ export default function BoothDetail({
               <PinIcon className="drow-ico" />
               <div>
                 <div className="drow-main">{place}</div>
-                {b.address && b.hood && (
-                  <div className="drow-sub">
-                    {b.hood} · {b.borough}
-                  </div>
-                )}
+                <div className="drow-sub">
+                  {b.address && b.hood ? `${b.hood} · ${b.borough}` : b.borough}
+                  {userLoc && ` · ${formatMiles(distanceMiles(userLoc, b))} away`}
+                </div>
               </div>
             </div>
             <div className="drow">

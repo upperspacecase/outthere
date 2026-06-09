@@ -7,21 +7,27 @@ import {
   directionsUrl,
   isOpenNow,
   ratingValue,
+  distanceMiles,
+  formatMiles,
+  type LatLng,
 } from "@/lib/display";
 import { StarIcon, CompassIcon } from "./icons";
 
 export default function PreviewCard({
   booth: b,
+  userLoc,
   onOpen,
   onClose,
 }: {
   booth: Booth;
+  userLoc: LatLng | null;
   onOpen: () => void;
   onClose: () => void;
 }) {
   const color = markerColor(b);
   const open = isOpenNow(b);
-  const place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
+  let place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
+  if (userLoc) place += ` · ${formatMiles(distanceMiles(userLoc, b))}`;
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
 
   return (

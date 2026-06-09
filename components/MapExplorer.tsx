@@ -5,42 +5,46 @@ import BoothMap from "./BoothMap";
 import SubmitModal from "./SubmitModal";
 import BoothDetail from "./BoothDetail";
 import PreviewCard from "./PreviewCard";
-import { ListIcon, MapIcon, SearchIcon, CompassIcon, BookmarkIcon, PlusIcon } from "./icons";
-import type { Booth, Borough } from "@/lib/types";
+import { CompassIcon, BookmarkIcon, PlusIcon, ListIcon, MapIcon } from "./icons";
+import type { Booth } from "@/lib/types";
 import {
-  COLORS,
-  type EffectiveType,
-  effectiveType,
   markerColor,
   badgeLabel,
   directionsUrl,
   isOpenNow,
+  matchesPriceTier,
+  type PriceTier,
+  type LatLng,
+  distanceMiles,
+  formatMiles,
 } from "@/lib/display";
 
-const BOROUGHS: (Borough | "all")[] = ["all", "Manhattan", "Brooklyn", "Queens"];
-
-const TYPE_PILLS: { key: EffectiveType; label: string }[] = [
-  { key: "analog", label: "Analog film" },
-  { key: "digital", label: "Digital" },
-  { key: "dedicated", label: "Booth shop" },
+const PRICE_OPTS: { key: PriceTier; label: string }[] = [
+  { key: "any", label: "Any price" },
+  { key: "low", label: "Under $8" },
+  { key: "mid", label: "$8–12" },
+  { key: "high", label: "Over $12" },
 ];
 
-type Tab = "crowdsourced" | "updated";
+type Dist = "any" | "1" | "3" | "5";
+const DIST_OPTS: { key: Dist; label: string }[] = [
+  { key: "any", label: "Any distance" },
+  { key: "1", label: "≤ 1 mi" },
+  { key: "3", label: "≤ 3 mi" },
+  { key: "5", label: "≤ 5 mi" },
+];
+const DIST_LIMITS: Record<Exclude<Dist, "any">, number> = { "1": 1, "3": 3, "5": 5 };
+
 type MobileView = "list" | "map";
 type NavTab = "explore" | "saved";
 
 const SAVED_KEY = "outthere:saved";
 
 export default function MapExplorer({ booths }: { booths: Booth[] }) {
-  const [boro, setBoro] = useState<Borough | "all">("all");
-  const [types, setTypes] = useState<Record<EffectiveType, boolean>>({
-    analog: true,
-    digital: true,
-    dedicated: true,
-    verify: true,
-  });
-  const [tab, setTab] = useState<Tab>("crowdsourced");
-  const [q, setQ] = useState("");
+  const [priceTier, setPriceTier] = useState<PriceTier>("any");
+  const [openOnly, setOpenOnly] = useState(false);
+  const [distance, setDistance] = useState<Dist>("any");
+
   const [mobileView, setMobileView] = useState<MobileView>("list");
   const [navTab, setNavTab] = useState<NavTab>("explore");
   const [selected, setSelected] = useState<string | null>(null);
@@ -48,7 +52,11 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const [showSubmit, setShowSubmit] = useState(false);
   const [saved, setSaved] = useState<Set<string>>(new Set());
 
-  // Hydrate saved booths from localStorage.
+  // Shared geolocation (the Near me button and the distance filter both use it).
+  const [userLoc, setUserLoc] = useState<LatLng | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SAVED_KEY);
@@ -57,6 +65,37 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
     } catch {
       /* ignore */
     }
+  }, []);
+
+  useEffect(() => {
+    if (!locError) return;
+    const t = setTimeout(() => setLocError(null), 4000);
+    return () => clearTimeout(t);
+  }, [locError]);
+
+  const requestLocation = useCallback(() => {
+    setLocError(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocError("Location isn't available on this device.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => {
+        setLocating(false);
+        setDistance("any"); // can't filter by distance without a fix
+        setLocError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied."
+            : "Couldn't get your location.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
   }, []);
 
   const toggleSave = useCallback((slug: string) => {
@@ -73,23 +112,28 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
     });
   }, []);
 
+  function pickDistance(key: Dist) {
+    setDistance(key);
+    if (key !== "any" && !userLoc) requestLocation();
+  }
+
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
     const list = booths.filter((b) => {
       if (navTab === "saved" && !saved.has(b.slug)) return false;
-      if (boro !== "all" && b.borough !== boro) return false;
-      if (!types[effectiveType(b)]) return false;
-      if (needle) {
-        const hay = `${b.name} ${b.hood ?? ""} ${b.borough}`.toLowerCase();
-        if (!hay.includes(needle)) return false;
+      if (openOnly && !isOpenNow(b)) return false;
+      if (!matchesPriceTier(b, priceTier)) return false;
+      if (distance !== "any" && userLoc) {
+        if (distanceMiles(userLoc, b) > DIST_LIMITS[distance]) return false;
       }
       return true;
     });
-    if (tab === "updated") {
-      return [...list].sort((a, b) => a.name.localeCompare(b.name));
+    if (distance !== "any" && userLoc) {
+      return [...list].sort(
+        (a, b) => distanceMiles(userLoc, a) - distanceMiles(userLoc, b),
+      );
     }
     return list;
-  }, [booths, boro, types, q, tab, navTab, saved]);
+  }, [booths, openOnly, priceTier, distance, navTab, saved, userLoc]);
 
   const detailBooth = detailSlug
     ? booths.find((b) => b.slug === detailSlug) ?? null
@@ -103,23 +147,31 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
     setDetailSlug(slug);
   }
 
-  function toggleType(t: EffectiveType) {
-    setTypes((prev) => ({ ...prev, [t]: !prev[t] }));
-  }
-
-  const typePills = (
-    <div className="pills">
-      {TYPE_PILLS.map(({ key, label }) => (
-        <button
-          key={key}
-          className={`pill type${types[key] ? " on" : " off"}`}
-          onClick={() => toggleType(key)}
-        >
-          <span className="dot" style={{ background: COLORS[key] }} />
-          {label}
-        </button>
-      ))}
-    </div>
+  const pricePills = PRICE_OPTS.map((o) => (
+    <button
+      key={o.key}
+      className={`pill${priceTier === o.key ? " active" : ""}`}
+      onClick={() => setPriceTier(o.key)}
+    >
+      {o.label}
+    </button>
+  ));
+  const distPills = DIST_OPTS.map((o) => (
+    <button
+      key={o.key}
+      className={`pill${distance === o.key ? " active" : ""}`}
+      onClick={() => pickDistance(o.key)}
+    >
+      {o.label}
+    </button>
+  ));
+  const openPill = (
+    <button
+      className={`pill open-toggle${openOnly ? " on" : ""}`}
+      onClick={() => setOpenOnly((v) => !v)}
+    >
+      <span className="open-dot-sm" /> Open now
+    </button>
   );
 
   const viewToggle = (
@@ -139,23 +191,6 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
     </div>
   );
 
-  const searchField = (placeholder: string) => (
-    <div className="search-bar">
-      <SearchIcon className="search-ico" />
-      <input
-        type="text"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder={placeholder}
-      />
-      {q && (
-        <button className="search-clear" onClick={() => setQ("")} aria-label="Clear">
-          ×
-        </button>
-      )}
-    </div>
-  );
-
   return (
     <div className="app" data-view={mobileView}>
       <aside className="panel">
@@ -167,42 +202,20 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
             {booths.length} real, visitable photo booths across Manhattan,
             Brooklyn, and Queens.
           </p>
-          <div className="tabs">
-            <button
-              className={`tab${tab === "crowdsourced" ? " active" : ""}`}
-              onClick={() => setTab("crowdsourced")}
-            >
-              Crowdsourced
-            </button>
-            <button
-              className={`tab${tab === "updated" ? " active" : ""}`}
-              onClick={() => setTab("updated")}
-            >
-              Community updated
-            </button>
-          </div>
         </div>
-
-        <div className="panel-search">{searchField("Search booths or neighborhoods…")}</div>
 
         <div className="filters">
           <div className="filter-row">
-            <span className="filter-label">Filter by borough</span>
-            <div className="pills">
-              {BOROUGHS.map((b) => (
-                <button
-                  key={b}
-                  className={`pill${boro === b ? " active" : ""}`}
-                  onClick={() => setBoro(b)}
-                >
-                  {b === "all" ? "All" : b}
-                </button>
-              ))}
-            </div>
+            <span className="filter-label">Price</span>
+            <div className="pills">{pricePills}</div>
           </div>
           <div className="filter-row">
-            <span className="filter-label">Filter by type</span>
-            {typePills}
+            <span className="filter-label">Availability</span>
+            <div className="pills">{openPill}</div>
+          </div>
+          <div className="filter-row">
+            <span className="filter-label">Distance</span>
+            <div className="pills">{distPills}</div>
           </div>
         </div>
 
@@ -220,6 +233,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
               <BoothCard
                 key={b.slug}
                 booth={b}
+                userLoc={userLoc}
                 selected={selected === b.slug}
                 onSelect={() => openDetail(b.slug)}
               />
@@ -240,8 +254,11 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
 
       <div className="map-col">
         <div className="map-topbar">
-          {searchField("Search this area")}
-          <div className="map-type-pills">{typePills}</div>
+          <div className="map-filter-bar">
+            {openPill}
+            {pricePills}
+            {distPills}
+          </div>
           {viewToggle}
         </div>
 
@@ -250,11 +267,16 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           selected={selected}
           onSelect={setSelected}
           onAddBooth={() => setShowSubmit(true)}
+          userLoc={userLoc}
+          locating={locating}
+          locError={locError}
+          onLocate={requestLocation}
         />
 
         {previewBooth && (
           <PreviewCard
             booth={previewBooth}
+            userLoc={userLoc}
             onOpen={() => openDetail(previewBooth.slug)}
             onClose={() => setSelected(null)}
           />
@@ -286,6 +308,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
       {detailBooth && (
         <BoothDetail
           booth={detailBooth}
+          userLoc={userLoc}
           saved={saved.has(detailBooth.slug)}
           onToggleSave={() => toggleSave(detailBooth.slug)}
           onClose={() => setDetailSlug(null)}
@@ -299,16 +322,19 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
 
 function BoothCard({
   booth: b,
+  userLoc,
   selected,
   onSelect,
 }: {
   booth: Booth;
+  userLoc: LatLng | null;
   selected: boolean;
   onSelect: () => void;
 }) {
   const color = markerColor(b);
   const open = isOpenNow(b);
-  const place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
+  let place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
+  if (userLoc) place += ` · ${formatMiles(distanceMiles(userLoc, b))}`;
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
   return (
     <button className={`card${selected ? " sel" : ""}`} onClick={onSelect}>

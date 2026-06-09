@@ -91,3 +91,40 @@ export function paymentLabel(b: Pick<Booth, "slug" | "payment">): string {
   if (b.payment) return b.payment;
   return ["Card & cash", "Card only", "Cash only"][hashStr(b.slug + "pay") % 3];
 }
+
+/* ---- Price & distance filtering ---- */
+
+// Leading dollar amount parsed from a free-form price string ("$8.90/4" -> 8.9).
+export function priceValue(b: Pick<Booth, "price">): number | null {
+  if (!b.price) return null;
+  const m = b.price.match(/\$\s*(\d+(?:\.\d+)?)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+export type PriceTier = "any" | "low" | "mid" | "high";
+
+export function matchesPriceTier(b: Pick<Booth, "price">, tier: PriceTier): boolean {
+  if (tier === "any") return true;
+  const v = priceValue(b);
+  if (v === null) return false;
+  if (tier === "low") return v < 8;
+  if (tier === "mid") return v >= 8 && v <= 12;
+  return v > 12;
+}
+
+export type LatLng = { lat: number; lng: number };
+
+export function distanceMiles(from: LatLng, b: Pick<Booth, "lat" | "lng">): number {
+  const R = 3958.8; // earth radius, miles
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - from.lat);
+  const dLng = rad(b.lng - from.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(from.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function formatMiles(mi: number): string {
+  return mi < 0.1 ? "<0.1 mi" : `${mi.toFixed(1)} mi`;
+}

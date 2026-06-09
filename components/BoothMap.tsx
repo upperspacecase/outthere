@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Booth } from "@/lib/types";
-import { COLORS, markerColor } from "@/lib/display";
+import { COLORS, markerColor, type LatLng } from "@/lib/display";
 
 /* Leaflet is loaded dynamically (client only); keep its refs loose. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -26,11 +26,19 @@ export default function BoothMap({
   selected,
   onSelect,
   onAddBooth,
+  userLoc,
+  locating,
+  locError,
+  onLocate,
 }: {
   booths: Booth[];
   selected: string | null;
   onSelect: (slug: string) => void;
   onAddBooth: () => void;
+  userLoc: LatLng | null;
+  locating: boolean;
+  locError: string | null;
+  onLocate: () => void;
 }) {
   const elRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -44,8 +52,6 @@ export default function BoothMap({
     onSelectRef.current = onSelect;
   }, [onSelect]);
   const [ready, setReady] = useState(false);
-  const [locating, setLocating] = useState(false);
-  const [locError, setLocError] = useState<string | null>(null);
 
   // Initialise the map once.
   useEffect(() => {
@@ -127,59 +133,32 @@ export default function BoothMap({
     mapRef.current?.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.6 });
   }
 
-  function locate() {
-    setLocError(null);
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setLocError("Location isn't available on this device.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false);
-        const L = LRef.current;
-        const map = mapRef.current;
-        if (!L || !map) return;
-        const latlng: [number, number] = [
-          pos.coords.latitude,
-          pos.coords.longitude,
-        ];
-        if (userMarkerRef.current) {
-          userMarkerRef.current.setLatLng(latlng);
-        } else {
-          const icon = L.divIcon({
-            className: "user-loc",
-            html: `<div class="user-dot"></div>`,
-            iconSize: [18, 18],
-            iconAnchor: [9, 9],
-          });
-          userMarkerRef.current = L.marker(latlng, {
-            icon,
-            interactive: false,
-            keyboard: false,
-            zIndexOffset: 1000,
-          }).addTo(map);
-        }
-        map.flyTo(latlng, 14, { duration: 0.8 });
-      },
-      (err) => {
-        setLocating(false);
-        setLocError(
-          err.code === err.PERMISSION_DENIED
-            ? "Location permission denied."
-            : "Couldn't get your location.",
-        );
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
-  }
-
-  // Auto-dismiss the location error toast.
+  // Drop / move the "you are here" dot and fly to it whenever the shared
+  // location (from the Near me button or the distance filter) updates.
   useEffect(() => {
-    if (!locError) return;
-    const t = setTimeout(() => setLocError(null), 4000);
-    return () => clearTimeout(t);
-  }, [locError]);
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!ready || !L || !map || !userLoc) return;
+    const latlng: [number, number] = [userLoc.lat, userLoc.lng];
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLatLng(latlng);
+    } else {
+      const icon = L.divIcon({
+        className: "user-loc",
+        html: `<div class="user-dot"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+      userMarkerRef.current = L.marker(latlng, {
+        icon,
+        interactive: false,
+        keyboard: false,
+        zIndexOffset: 1000,
+      }).addTo(map);
+    }
+    const size = map.getSize();
+    if (size.x > 0 && size.y > 0) map.flyTo(latlng, 14, { duration: 0.8 });
+  }, [userLoc, ready]);
 
   return (
     <div className="map-wrap">
@@ -215,7 +194,7 @@ export default function BoothMap({
       <div className="map-controls">
         <button
           className="map-pill"
-          onClick={locate}
+          onClick={onLocate}
           disabled={locating}
           aria-label="Find my location"
         >

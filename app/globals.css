@@ -170,6 +170,25 @@ h1 .accent-word::after {
   margin-right: 6px;
 }
 
+/* "Open now" toggle pill */
+.pill.open-toggle .open-dot-sm {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: var(--open);
+}
+.pill.open-toggle.on {
+  background: var(--open);
+  border-color: var(--open);
+  color: #fff;
+}
+.pill.open-toggle.on .open-dot-sm {
+  background: #fff;
+}
+
 /* ---- List ---- */
 #list {
   flex: 1;
@@ -1185,22 +1204,28 @@ h1 .accent-word::after {
   .leaflet-control-zoom {
     display: none;
   }
-  .map-topbar .search-bar {
-    box-shadow: 0 4px 14px rgba(20, 25, 35, 0.1);
-  }
-  .map-topbar .map-type-pills {
+  .map-filter-bar {
+    display: flex;
+    gap: 7px;
     overflow-x: auto;
     scrollbar-width: none;
+    padding: 2px 0;
   }
-  .map-topbar .map-type-pills::-webkit-scrollbar {
+  .map-filter-bar::-webkit-scrollbar {
     display: none;
   }
-  .map-topbar .pills {
-    flex-wrap: nowrap;
-  }
-  .map-topbar .pill {
+  .map-filter-bar .pill {
+    flex: 0 0 auto;
     background: #fff;
     box-shadow: 0 2px 8px rgba(20, 25, 35, 0.08);
+  }
+  .map-filter-bar .pill.active {
+    background: var(--ink);
+    color: #fff;
+  }
+  .map-filter-bar .pill.open-toggle.on {
+    background: var(--open);
+    color: #fff;
   }
   .map-topbar .view-toggle {
     margin: 0;
