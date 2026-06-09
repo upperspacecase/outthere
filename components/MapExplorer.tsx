@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import BoothMap from "./BoothMap";
 import SubmitModal from "./SubmitModal";
+import BoothDetail from "./BoothDetail";
+import PreviewCard from "./PreviewCard";
+import { ListIcon, MapIcon, SearchIcon, CompassIcon, BookmarkIcon, PlusIcon } from "./icons";
 import type { Booth, Borough } from "@/lib/types";
 import {
   COLORS,
@@ -11,6 +14,7 @@ import {
   markerColor,
   badgeLabel,
   directionsUrl,
+  isOpenNow,
 } from "@/lib/display";
 
 const BOROUGHS: (Borough | "all")[] = ["all", "Manhattan", "Brooklyn", "Queens"];
@@ -22,6 +26,10 @@ const TYPE_PILLS: { key: EffectiveType; label: string }[] = [
 ];
 
 type Tab = "crowdsourced" | "updated";
+type MobileView = "list" | "map";
+type NavTab = "explore" | "saved";
+
+const SAVED_KEY = "outthere:saved";
 
 export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const [boro, setBoro] = useState<Borough | "all">("all");
@@ -32,46 +40,125 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
     verify: true,
   });
   const [tab, setTab] = useState<Tab>("crowdsourced");
+  const [q, setQ] = useState("");
+  const [mobileView, setMobileView] = useState<MobileView>("list");
+  const [navTab, setNavTab] = useState<NavTab>("explore");
   const [selected, setSelected] = useState<string | null>(null);
+  const [detailSlug, setDetailSlug] = useState<string | null>(null);
   const [showSubmit, setShowSubmit] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [saved, setSaved] = useState<Set<string>>(new Set());
 
-  // Selecting a booth flies the map to its pin — collapse the mobile sheet so
-  // the map is visible.
-  function handleSelect(slug: string) {
-    setSelected(slug);
-    setSheetOpen(false);
-  }
+  // Hydrate saved booths from localStorage.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SAVED_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate client-only storage after mount
+      if (raw) setSaved(new Set(JSON.parse(raw)));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const toggleSave = useCallback((slug: string) => {
+    setSaved((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      try {
+        localStorage.setItem(SAVED_KEY, JSON.stringify([...next]));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
 
   const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
     const list = booths.filter((b) => {
+      if (navTab === "saved" && !saved.has(b.slug)) return false;
       if (boro !== "all" && b.borough !== boro) return false;
       if (!types[effectiveType(b)]) return false;
+      if (needle) {
+        const hay = `${b.name} ${b.hood ?? ""} ${b.borough}`.toLowerCase();
+        if (!hay.includes(needle)) return false;
+      }
       return true;
     });
     if (tab === "updated") {
       return [...list].sort((a, b) => a.name.localeCompare(b.name));
     }
     return list;
-  }, [booths, boro, types, tab]);
+  }, [booths, boro, types, q, tab, navTab, saved]);
+
+  const detailBooth = detailSlug
+    ? booths.find((b) => b.slug === detailSlug) ?? null
+    : null;
+  const previewBooth = selected
+    ? filtered.find((b) => b.slug === selected) ?? null
+    : null;
+
+  function openDetail(slug: string) {
+    setSelected(slug);
+    setDetailSlug(slug);
+  }
 
   function toggleType(t: EffectiveType) {
     setTypes((prev) => ({ ...prev, [t]: !prev[t] }));
   }
 
-  return (
-    <div className="app">
-      <aside className={`panel${sheetOpen ? " sheet-open" : ""}`}>
+  const typePills = (
+    <div className="pills">
+      {TYPE_PILLS.map(({ key, label }) => (
         <button
-          className="sheet-handle"
-          onClick={() => setSheetOpen((o) => !o)}
-          aria-label={sheetOpen ? "Collapse list" : "Expand list"}
+          key={key}
+          className={`pill type${types[key] ? " on" : " off"}`}
+          onClick={() => toggleType(key)}
         >
-          <span className="sheet-grip" />
-          <span className="sheet-handle-label">
-            {sheetOpen ? "Hide list" : `${filtered.length} booths · tap to browse`}
-          </span>
+          <span className="dot" style={{ background: COLORS[key] }} />
+          {label}
         </button>
+      ))}
+    </div>
+  );
+
+  const viewToggle = (
+    <div className="view-toggle" role="tablist">
+      <button
+        className={mobileView === "list" ? "active" : ""}
+        onClick={() => setMobileView("list")}
+      >
+        <ListIcon /> List
+      </button>
+      <button
+        className={mobileView === "map" ? "active" : ""}
+        onClick={() => setMobileView("map")}
+      >
+        <MapIcon /> Map
+      </button>
+    </div>
+  );
+
+  const searchField = (placeholder: string) => (
+    <div className="search-bar">
+      <SearchIcon className="search-ico" />
+      <input
+        type="text"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder={placeholder}
+      />
+      {q && (
+        <button className="search-clear" onClick={() => setQ("")} aria-label="Clear">
+          ×
+        </button>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="app" data-view={mobileView}>
+      <aside className="panel">
         <div className="panel-head">
           <h1>
             NYC Photo Booth <span className="accent-word">Map</span>
@@ -96,6 +183,8 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           </div>
         </div>
 
+        <div className="panel-search">{searchField("Search booths or neighborhoods…")}</div>
+
         <div className="filters">
           <div className="filter-row">
             <span className="filter-label">Filter by borough</span>
@@ -111,29 +200,30 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
               ))}
             </div>
           </div>
-
           <div className="filter-row">
             <span className="filter-label">Filter by type</span>
-            <div className="pills">
-              {TYPE_PILLS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  className={`pill type${types[key] ? " on" : " off"}`}
-                  onClick={() => toggleType(key)}
-                >
-                  <span className="dot" style={{ background: COLORS[key] }} />
-                  {label}
-                </button>
-              ))}
-            </div>
+            {typePills}
           </div>
         </div>
 
+        {viewToggle}
+
         <div id="list">
-          {filtered.length === 0 ? (
+          {navTab === "saved" && filtered.length === 0 ? (
+            <div className="empty">
+              No saved booths yet. Tap <b>Save</b> on a booth to keep it here.
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="empty">No booths match these filters.</div>
           ) : (
-            filtered.map((b) => <BoothCard key={b.slug} booth={b} selected={selected === b.slug} onSelect={() => handleSelect(b.slug)} />)
+            filtered.map((b) => (
+              <BoothCard
+                key={b.slug}
+                booth={b}
+                selected={selected === b.slug}
+                onSelect={() => openDetail(b.slug)}
+              />
+            ))
           )}
         </div>
 
@@ -148,12 +238,59 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
         </div>
       </aside>
 
-      <BoothMap
-        booths={filtered}
-        selected={selected}
-        onSelect={handleSelect}
-        onAddBooth={() => setShowSubmit(true)}
-      />
+      <div className="map-col">
+        <div className="map-topbar">
+          {searchField("Search this area")}
+          <div className="map-type-pills">{typePills}</div>
+          {viewToggle}
+        </div>
+
+        <BoothMap
+          booths={filtered}
+          selected={selected}
+          onSelect={setSelected}
+          onAddBooth={() => setShowSubmit(true)}
+        />
+
+        {previewBooth && (
+          <PreviewCard
+            booth={previewBooth}
+            onOpen={() => openDetail(previewBooth.slug)}
+            onClose={() => setSelected(null)}
+          />
+        )}
+      </div>
+
+      <nav className="bottom-nav">
+        <button
+          className={navTab === "explore" ? "active" : ""}
+          onClick={() => setNavTab("explore")}
+        >
+          <CompassIcon /> Explore
+        </button>
+        <button
+          className={navTab === "saved" ? "active" : ""}
+          onClick={() => {
+            setNavTab("saved");
+            setMobileView("list");
+          }}
+        >
+          <BookmarkIcon filled={navTab === "saved"} /> Saved
+          {saved.size > 0 && <span className="nav-badge">{saved.size}</span>}
+        </button>
+        <button onClick={() => setShowSubmit(true)}>
+          <PlusIcon /> Submit
+        </button>
+      </nav>
+
+      {detailBooth && (
+        <BoothDetail
+          booth={detailBooth}
+          saved={saved.has(detailBooth.slug)}
+          onToggleSave={() => toggleSave(detailBooth.slug)}
+          onClose={() => setDetailSlug(null)}
+        />
+      )}
 
       {showSubmit && <SubmitModal onClose={() => setShowSubmit(false)} />}
     </div>
@@ -170,6 +307,7 @@ function BoothCard({
   onSelect: () => void;
 }) {
   const color = markerColor(b);
+  const open = isOpenNow(b);
   const place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
   return (
@@ -186,15 +324,12 @@ function BoothCard({
       <span className="card-body">
         <span className="card-top">
           <span className="card-name">{b.name}</span>
-          <span className="open-now">
-            <span className="open-dot" /> Open now
+          <span className={`open-now${open ? "" : " closed"}`}>
+            <span className="open-dot" /> {open ? "Open now" : "Closed"}
           </span>
         </span>
         <span className="card-addr">{place}</span>
-        <span
-          className="type-tag"
-          style={{ background: `${color}1f`, color }}
-        >
+        <span className="type-tag" style={{ background: `${color}1f`, color }}>
           {badgeLabel(b)}
         </span>
         <span className="card-bottom">

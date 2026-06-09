@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Booth } from "@/lib/types";
-import { COLORS, markerColor, badgeLabel, directionsUrl } from "@/lib/display";
+import { COLORS, markerColor } from "@/lib/display";
 
 /* Leaflet is loaded dynamically (client only); keep its refs loose. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -19,19 +19,6 @@ function pinSvg(color: string, dashed: boolean): string {
     <path d="M14 0C6.27 0 0 6.13 0 13.7 0 23.3 14 38 14 38s14-14.7 14-24.3C28 6.13 21.73 0 14 0z" fill="${color}"/>
     ${ring}
   </svg>`;
-}
-
-function popupHtml(b: Booth): string {
-  const color = markerColor(b);
-  return `<div class="pop">
-    <h3>${esc(b.name)}</h3>
-    <div class="meta">${esc(b.hood ? `${b.hood} · ${b.borough}` : b.borough)}</div>
-    <span class="type-tag" style="background:${color}1f;color:${color}">${badgeLabel(b)}</span>
-    ${b.price ? `<span class="pop-price">${esc(b.price)}</span>` : ""}
-    ${b.note ? `<div class="note">${esc(b.note)}</div>` : ""}
-    ${b.sources ? `<div class="src">Listed by ${esc(b.sources)}</div>` : ""}
-    <a class="dir" href="${directionsUrl(b.lat, b.lng)}" target="_blank" rel="noopener">Directions ↗</a>
-  </div>`;
 }
 
 export default function BoothMap({
@@ -50,6 +37,7 @@ export default function BoothMap({
   const layerRef = useRef<any>(null);
   const markersRef = useRef<Record<string, any>>({});
   const LRef = useRef<any>(null);
+  const roRef = useRef<ResizeObserver | null>(null);
   const userMarkerRef = useRef<any>(null);
   const onSelectRef = useRef(onSelect);
   useEffect(() => {
@@ -80,10 +68,18 @@ export default function BoothMap({
       ).addTo(map);
       layerRef.current = L.layerGroup().addTo(map);
       mapRef.current = map;
+      // Leaflet renders wrong when its container starts hidden (mobile List
+      // view) or resizes — refresh on every size change.
+      if (typeof ResizeObserver !== "undefined" && elRef.current) {
+        const ro = new ResizeObserver(() => map.invalidateSize());
+        ro.observe(elRef.current);
+        roRef.current = ro;
+      }
       setReady(true);
     })();
     return () => {
       cancelled = true;
+      roRef.current?.disconnect();
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -108,20 +104,22 @@ export default function BoothMap({
       });
       markers[b.slug] = L.marker([b.lat, b.lng], { icon })
         .addTo(layer)
-        .bindPopup(popupHtml(b))
         .on("click", () => onSelectRef.current(b.slug));
     });
     markersRef.current = markers;
   }, [booths, ready]);
 
-  // Fly to and open the selected booth.
+  // Fly to the selected booth.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !selected) return;
+    // Skip when the map is hidden (mobile List view) — projecting on a
+    // zero-size container yields NaN and throws.
+    const size = map.getSize();
+    if (size.x === 0 || size.y === 0) return;
     const marker = markersRef.current[selected];
     if (marker) {
       map.flyTo(marker.getLatLng(), 15, { duration: 0.6 });
-      marker.openPopup();
     }
   }, [selected]);
 
@@ -229,13 +227,5 @@ export default function BoothMap({
         </button>
       </div>
     </div>
-  );
-}
-
-function esc(s: string): string {
-  return s.replace(
-    /[&<>"']/g,
-    (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c,
   );
 }

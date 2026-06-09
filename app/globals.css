@@ -334,6 +334,12 @@ h1 .accent-word::after {
 }
 
 /* ---- Map ---- */
+.map-col {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
 .map-wrap {
   position: relative;
   flex: 1;
@@ -511,9 +517,417 @@ h1 .accent-word::after {
   white-space: nowrap;
 }
 
-/* Bottom-sheet handle (mobile only) */
-.sheet-handle {
+/* ---- Search bar ---- */
+.panel-search {
+  padding: 0 24px 4px;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+.search-bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(239, 87, 119, 0.12);
+}
+.search-ico {
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+.search-bar input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+.search-clear {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--ink-faint);
+  padding: 0 2px;
+}
+
+/* ---- List / Map toggle (mobile) ---- */
+.view-toggle {
   display: none;
+  gap: 4px;
+  background: var(--line-soft);
+  border-radius: 999px;
+  padding: 4px;
+  margin: 8px 24px 0;
+}
+.view-toggle button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: none;
+  border: none;
+  border-radius: 999px;
+  padding: 8px;
+  cursor: pointer;
+}
+.view-toggle button.active {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(20, 25, 35, 0.12);
+}
+
+/* ---- Map top bar (mobile map view) ---- */
+.map-topbar {
+  display: none;
+}
+
+/* Status chips */
+.tag-muted {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  color: var(--ink-soft);
+}
+.tag-status {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+.tag-status.is-open {
+  background: rgba(47, 179, 126, 0.14);
+  color: var(--open);
+}
+.tag-status.is-closed {
+  background: rgba(154, 160, 168, 0.18);
+  color: var(--ink-soft);
+}
+.open-now.closed {
+  color: var(--ink-faint);
+}
+.open-now.closed .open-dot {
+  background: var(--ink-faint);
+}
+
+/* ---- Map preview card ---- */
+.preview-card {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 550;
+  width: min(440px, calc(100% - 32px));
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 12px 34px rgba(20, 25, 35, 0.18);
+  padding: 12px;
+}
+.preview-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: none;
+  background: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+.preview-main {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.preview-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.preview-name {
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  padding-right: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preview-addr {
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preview-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+.preview-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+}
+.prev-star {
+  width: 13px;
+  height: 13px;
+  color: #f5b400;
+}
+.preview-price {
+  font-weight: 700;
+  color: var(--ink);
+}
+.preview-open.open {
+  color: var(--open);
+  font-weight: 600;
+}
+.preview-open.closed {
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.preview-dir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 11px;
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 999px;
+}
+.preview-dir:hover {
+  background: var(--accent-dark);
+}
+.preview-dir svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- Bottom nav (mobile) ---- */
+.bottom-nav {
+  display: none;
+}
+
+/* ---- Booth detail screen ---- */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(20, 25, 35, 0.5);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.detail {
+  width: 100%;
+  max-width: 460px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(20, 25, 35, 0.3);
+}
+.detail-hero {
+  position: relative;
+  height: 168px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 20px 20px 0 0;
+}
+.detail-back {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20, 25, 35, 0.18);
+}
+.hero-frames {
+  display: flex;
+  gap: 10px;
+}
+.hero-frame {
+  width: 58px;
+  height: 78px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(20, 25, 35, 0.14);
+}
+.detail-body {
+  padding: 18px 22px 22px;
+}
+.detail-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+.detail-rows {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.drow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.drow-ico {
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.drow-ico.star {
+  color: #f5b400;
+}
+.drow-main {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.drow-sub {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+.drow-sub.open {
+  color: var(--open);
+  font-weight: 600;
+}
+.drow-sub.closed {
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.drow-sub-inline {
+  font-weight: 400;
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+}
+.detail-note {
+  margin: 18px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.detail-src {
+  margin: 10px 0 0;
+  font-size: 0.74rem;
+  color: var(--ink-faint);
+}
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-primary,
+.btn-save {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+}
+.btn-primary:hover {
+  background: var(--accent-dark);
+}
+.btn-save {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-save:hover {
+  border-color: #d4d8de;
+}
+.btn-save.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.btn-primary svg,
+.btn-save svg {
+  width: 17px;
+  height: 17px;
+}
+.detail-verified {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--open);
+}
+.detail-verified svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Leaflet chrome */
@@ -695,7 +1109,7 @@ h1 .accent-word::after {
   margin: 0 0 10px;
 }
 
-/* ---- Responsive: full-screen map + bottom sheet ---- */
+/* ---- Responsive: List / Map toggle + bottom nav ---- */
 @media (max-width: 820px) {
   body {
     overflow: hidden;
@@ -704,76 +1118,180 @@ h1 .accent-word::after {
     display: block;
     height: 100vh;
     height: 100dvh;
+    position: relative;
   }
-  .map-wrap {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
+  /* Both views fill the screen above the bottom nav (58px). */
+  .panel,
+  .map-col {
+    position: absolute;
+    inset: 0 0 58px 0;
+    width: 100%;
   }
   .panel {
-    position: fixed;
+    border-right: none;
+  }
+  /* Toggle which view is shown. */
+  .app[data-view="list"] .map-col {
+    display: none;
+  }
+  .app[data-view="map"] .panel {
+    display: none;
+  }
+
+  .panel-head {
+    padding: 16px 18px 10px;
+  }
+  .panel-search {
+    padding: 0 18px 4px;
+  }
+  .filters {
+    padding: 2px 18px 12px;
+  }
+  #list {
+    padding: 8px 10px 14px;
+  }
+  /* The bottom nav replaces the desktop footer + floating submit button. */
+  .panel-foot,
+  .map-submit {
+    display: none;
+  }
+  .view-toggle {
+    display: flex;
+  }
+
+  /* Map view: search + type pills + toggle float over the map. */
+  .map-col .map-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .map-topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 540;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px 10px;
+    background: linear-gradient(#f7f8faf2 70%, #f7f8fa00);
+    /* Let taps fall through to the map between the controls. */
+    pointer-events: none;
+  }
+  .map-topbar > * {
+    pointer-events: auto;
+  }
+  /* Pinch to zoom on mobile; the +/- control overlaps the search bar. */
+  .leaflet-control-zoom {
+    display: none;
+  }
+  .map-topbar .search-bar {
+    box-shadow: 0 4px 14px rgba(20, 25, 35, 0.1);
+  }
+  .map-topbar .map-type-pills {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .map-topbar .map-type-pills::-webkit-scrollbar {
+    display: none;
+  }
+  .map-topbar .pills {
+    flex-wrap: nowrap;
+  }
+  .map-topbar .pill {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(20, 25, 35, 0.08);
+  }
+  .map-topbar .view-toggle {
+    margin: 0;
+    align-self: center;
+    width: min(220px, 70%);
+  }
+  /* Map controls sit above the preview card / nav. */
+  .map-controls {
+    bottom: 14px;
+  }
+  .map-legend,
+  .map-badge {
+    display: none;
+  }
+
+  .preview-card {
+    bottom: 14px;
+  }
+
+  /* Bottom navigation. */
+  .bottom-nav {
+    display: flex;
+    position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    top: auto;
-    width: 100%;
-    height: 86vh;
-    height: 86dvh;
-    border-right: none;
+    height: 58px;
+    z-index: 700;
+    background: #fff;
     border-top: 1px solid var(--line);
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -8px 30px rgba(20, 25, 35, 0.18);
-    transform: translateY(calc(100% - 60px));
-    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 600;
   }
-  .panel.sheet-open {
-    transform: translateY(0);
-  }
-  .sheet-handle {
+  .bottom-nav button {
+    flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    width: 100%;
-    height: 60px;
-    flex-shrink: 0;
+    gap: 3px;
+    position: relative;
     background: none;
     border: none;
     cursor: pointer;
     font-family: inherit;
-    font-size: 0.8rem;
+    font-size: 0.66rem;
     font-weight: 600;
-    color: var(--ink-soft);
-    position: relative;
+    color: var(--ink-faint);
   }
-  .sheet-grip {
+  .bottom-nav button.active {
+    color: var(--accent);
+  }
+  .bottom-nav button svg {
+    width: 21px;
+    height: 21px;
+  }
+  .nav-badge {
     position: absolute;
-    top: 9px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 38px;
-    height: 4px;
+    top: 4px;
+    left: 56%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.56rem;
+    font-weight: 700;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 4px;
     border-radius: 999px;
-    background: #d2d7dd;
+    display: grid;
+    place-items: center;
   }
-  .sheet-handle-label {
-    margin-top: 8px;
+
+  .detail-overlay {
+    padding: 0;
+    place-items: stretch;
   }
-  /* Keep map chrome clear of the collapsed sheet peek. */
-  .map-controls {
-    bottom: 76px;
+  .detail {
+    max-width: none;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
   }
-  .map-legend {
+  .detail-hero {
+    border-radius: 0;
+    height: 200px;
+  }
+}
+
+/* Desktop: hide mobile-only chrome. */
+@media (min-width: 821px) {
+  .map-topbar,
+  .view-toggle,
+  .bottom-nav {
     display: none;
-  }
-  /* The bottom sheet's footer already offers "Submit a booth". */
-  .map-submit {
-    display: none;
-  }
-  .panel-head {
-    padding-top: 4px;
   }
 }

@@ -20,5 +20,12 @@ export interface Booth {
   note?: string;
   sources?: string; // provenance, e.g. "Booth Beacon · Marked"
   address?: string; // optional; community submissions provide one
+  // Optional real metadata. When absent the UI falls back to deterministic
+  // sample values (see lib/display.ts) so the prototype matches the design.
+  hours?: string;
+  payment?: string;
+  rating?: number;
+  reviews?: number;
+  photos?: string[];
   status: "published" | "pending"; // crowdsourced submissions start "pending"
 }
