@@ -50,11 +50,14 @@ export default function BoothMap({
   const layerRef = useRef<any>(null);
   const markersRef = useRef<Record<string, any>>({});
   const LRef = useRef<any>(null);
+  const userMarkerRef = useRef<any>(null);
   const onSelectRef = useRef(onSelect);
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
   const [ready, setReady] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
 
   // Initialise the map once.
   useEffect(() => {
@@ -126,6 +129,60 @@ export default function BoothMap({
     mapRef.current?.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.6 });
   }
 
+  function locate() {
+    setLocError(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocError("Location isn't available on this device.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        const L = LRef.current;
+        const map = mapRef.current;
+        if (!L || !map) return;
+        const latlng: [number, number] = [
+          pos.coords.latitude,
+          pos.coords.longitude,
+        ];
+        if (userMarkerRef.current) {
+          userMarkerRef.current.setLatLng(latlng);
+        } else {
+          const icon = L.divIcon({
+            className: "user-loc",
+            html: `<div class="user-dot"></div>`,
+            iconSize: [18, 18],
+            iconAnchor: [9, 9],
+          });
+          userMarkerRef.current = L.marker(latlng, {
+            icon,
+            interactive: false,
+            keyboard: false,
+            zIndexOffset: 1000,
+          }).addTo(map);
+        }
+        map.flyTo(latlng, 14, { duration: 0.8 });
+      },
+      (err) => {
+        setLocating(false);
+        setLocError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied."
+            : "Couldn't get your location.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  }
+
+  // Auto-dismiss the location error toast.
+  useEffect(() => {
+    if (!locError) return;
+    const t = setTimeout(() => setLocError(null), 4000);
+    return () => clearTimeout(t);
+  }, [locError]);
+
   return (
     <div className="map-wrap">
       <div id="map" ref={elRef} />
@@ -155,9 +212,22 @@ export default function BoothMap({
         <div className="legend-foot">Real booths, mapped by real people.</div>
       </div>
 
-      <button className="map-recenter" onClick={recenter}>
-        <span className="recenter-icon">⌖</span> Re-center
-      </button>
+      {locError && <div className="map-toast">{locError}</div>}
+
+      <div className="map-controls">
+        <button
+          className="map-pill"
+          onClick={locate}
+          disabled={locating}
+          aria-label="Find my location"
+        >
+          <span className="ctrl-icon">◎</span>
+          {locating ? "Locating…" : "Near me"}
+        </button>
+        <button className="map-pill" onClick={recenter}>
+          <span className="ctrl-icon">⌖</span> Re-center
+        </button>
+      </div>
     </div>
   );
 }

@@ -34,6 +34,14 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const [tab, setTab] = useState<Tab>("crowdsourced");
   const [selected, setSelected] = useState<string | null>(null);
   const [showSubmit, setShowSubmit] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  // Selecting a booth flies the map to its pin — collapse the mobile sheet so
+  // the map is visible.
+  function handleSelect(slug: string) {
+    setSelected(slug);
+    setSheetOpen(false);
+  }
 
   const filtered = useMemo(() => {
     const list = booths.filter((b) => {
@@ -53,7 +61,17 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
 
   return (
     <div className="app">
-      <aside className="panel">
+      <aside className={`panel${sheetOpen ? " sheet-open" : ""}`}>
+        <button
+          className="sheet-handle"
+          onClick={() => setSheetOpen((o) => !o)}
+          aria-label={sheetOpen ? "Collapse list" : "Expand list"}
+        >
+          <span className="sheet-grip" />
+          <span className="sheet-handle-label">
+            {sheetOpen ? "Hide list" : `${filtered.length} booths · tap to browse`}
+          </span>
+        </button>
         <div className="panel-head">
           <h1>
             NYC Photo Booth <span className="accent-word">Map</span>
@@ -115,7 +133,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           {filtered.length === 0 ? (
             <div className="empty">No booths match these filters.</div>
           ) : (
-            filtered.map((b) => <BoothCard key={b.slug} booth={b} selected={selected === b.slug} onSelect={() => setSelected(b.slug)} />)
+            filtered.map((b) => <BoothCard key={b.slug} booth={b} selected={selected === b.slug} onSelect={() => handleSelect(b.slug)} />)
           )}
         </div>
 
@@ -133,7 +151,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
       <BoothMap
         booths={filtered}
         selected={selected}
-        onSelect={setSelected}
+        onSelect={handleSelect}
         onAddBooth={() => setShowSubmit(true)}
       />
 
