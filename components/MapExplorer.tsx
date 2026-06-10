@@ -6,7 +6,14 @@ import BoothMap from "./BoothMap";
 import BoothForm from "./BoothForm";
 import BoothDetail from "./BoothDetail";
 import PreviewCard from "./PreviewCard";
-import { CompassIcon, BookmarkIcon, PlusIcon, ListIcon, MapIcon } from "./icons";
+import {
+  CompassIcon,
+  BookmarkIcon,
+  PlusIcon,
+  ListIcon,
+  MapIcon,
+  NearMeIcon,
+} from "./icons";
 import type { Booth } from "@/lib/types";
 import {
   markerColor,
@@ -181,6 +188,16 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           </option>
         ))}
       </select>
+      <button
+        type="button"
+        className={`dd-btn${userLoc ? " active" : ""}`}
+        onClick={requestLocation}
+        disabled={locating}
+        aria-label="Find booths near me"
+      >
+        <NearMeIcon className="dd-btn-ico" />
+        {locating ? "Locating…" : "Near me"}
+      </button>
     </div>
   );
 

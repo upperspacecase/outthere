@@ -232,6 +232,37 @@ select.dd:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(239, 87, 119, 0.12);
 }
+.dd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  transition: 0.12s;
+}
+.dd-btn:hover {
+  border-color: #d4d8de;
+}
+.dd-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.dd-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.dd-btn-ico {
+  width: 15px;
+  height: 15px;
+}
 
 /* Brand tagline chip — shown over the map on mobile map view. */
 .map-tagline {
@@ -1309,7 +1340,8 @@ select.dd:focus {
   .map-topbar .filter-bar::-webkit-scrollbar {
     display: none;
   }
-  .map-topbar select.dd {
+  .map-topbar select.dd,
+  .map-topbar .dd-btn {
     flex: 0 0 auto;
     box-shadow: 0 2px 8px rgba(20, 25, 35, 0.08);
   }

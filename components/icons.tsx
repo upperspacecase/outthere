@@ -19,6 +19,13 @@ export function PinIcon(p: P) {
     </svg>
   );
 }
+export function NearMeIcon(p: P) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M21 3 3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z" />
+    </svg>
+  );
+}
 export function ClockIcon(p: P) {
   return (
     <svg {...base} {...p}>
