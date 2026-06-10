@@ -58,18 +58,28 @@ export default function BoothDetail({
       <div className="detail" onClick={(e) => e.stopPropagation()}>
         <div
           className="detail-hero"
-          style={{ background: `linear-gradient(150deg, ${color}33, ${color}66)` }}
+          style={
+            b.photos?.[0]
+              ? {
+                  backgroundImage: `linear-gradient(180deg, rgba(20,25,35,0) 55%, rgba(20,25,35,0.4)), url(${b.photos[0]})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }
+              : { background: `linear-gradient(150deg, ${color}33, ${color}66)` }
+          }
         >
           <button className="detail-back" onClick={onClose} aria-label="Back">
             ‹
           </button>
-          <div className="hero-frames">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="hero-frame" style={{ color }}>
-                {initial || "📷"}
-              </span>
-            ))}
-          </div>
+          {!b.photos?.[0] && (
+            <div className="hero-frames">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="hero-frame" style={{ color }}>
+                  {initial || "📷"}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="detail-body">

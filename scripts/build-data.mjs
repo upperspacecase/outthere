@@ -57,6 +57,16 @@ const BOOTHS = [
 const slugify = (s) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+// Attach a self-hosted photo when one exists in public/booths/<slug>.<ext>.
+// These are real, verified venue/booth photos (sourced from photobooth.net and
+// official venue sites); booths without one fall back to the colored initial.
+const photosDir = path.join(process.cwd(), "public", "booths");
+const photoFiles = fs.existsSync(photosDir) ? fs.readdirSync(photosDir) : [];
+function photoFor(slug) {
+  const f = photoFiles.find((n) => n.replace(/\.[^.]+$/, "") === slug);
+  return f ? [`/booths/${f}`] : undefined;
+}
+
 const booths = BOOTHS.map((b) => ({
   slug: slugify(b.n),
   name: b.n,
@@ -70,6 +80,7 @@ const booths = BOOTHS.map((b) => ({
   price: b.price && b.price !== "—" ? b.price : undefined,
   note: b.note || undefined,
   sources: b.src || undefined,
+  photos: photoFor(slugify(b.n)),
   status: "published",
 }));
 

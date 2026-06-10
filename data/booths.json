@@ -12,6 +12,9 @@
     "price": "$8–12/strip",
     "note": "One venue housing ~7 distinct restored machines (incl. a rare color-chemistry & a Polaroid booth) — directories list each machine separately, but it's all 121 Orchard St. Free entry; pay per strip.",
     "sources": "Marked · Booth Beacon · Photobooth.net",
+    "photos": [
+      "/booths/autophoto.jpg"
+    ],
     "status": "published"
   },
   {
@@ -27,6 +30,9 @@
     "price": "$8.90/4",
     "note": "Restored street booth, classic B&W strips. Starts ~3s after you pay — be ready. Lines get long.",
     "sources": "Marked · Booth Beacon",
+    "photos": [
+      "/booths/old-friend-photobooth.jpg"
+    ],
     "status": "published"
   },
   {
@@ -57,6 +63,9 @@
     "price": "$12/2 strips",
     "note": "Spacious booth next to Scarr's Pizza — photo + video, gives you time to pose.",
     "sources": "Marked",
+    "photos": [
+      "/booths/retrography.jpg"
+    ],
     "status": "published"
   },
   {
@@ -71,6 +80,9 @@
     "verify": false,
     "note": "70s-inspired bar/bistro; booth tucked in the basement by the pool table.",
     "sources": "Marked",
+    "photos": [
+      "/booths/the-flower-shop.jpg"
+    ],
     "status": "published"
   },
   {
@@ -85,6 +97,9 @@
     "verify": false,
     "note": "Roomy two-floor bar, pool table on each level.",
     "sources": "Classic · Booth Beacon",
+    "photos": [
+      "/booths/the-ripple-room.jpg"
+    ],
     "status": "published"
   },
   {
@@ -100,6 +115,9 @@
     "price": "Free",
     "note": "Dive bar with a free photo machine and a famous $6 happy hour.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/the-magician.jpg"
+    ],
     "status": "published"
   },
   {
@@ -114,6 +132,9 @@
     "verify": false,
     "note": "Live-music & comedy bar with a back room and pool table.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/parkside-lounge.jpg"
+    ],
     "status": "published"
   },
   {
@@ -128,6 +149,9 @@
     "verify": false,
     "note": "Alphabet City mainstay with the Joe Strummer mural. Booth is digital (borders galore).",
     "sources": "Soho Grand · Booth Beacon",
+    "photos": [
+      "/booths/niagara.jpg"
+    ],
     "status": "published"
   },
   {
@@ -142,6 +166,9 @@
     "verify": false,
     "note": "Classic Avenue B corner dive bar.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/7b-vazac-s-horseshoe.jpg"
+    ],
     "status": "published"
   },
   {
@@ -156,6 +183,9 @@
     "verify": false,
     "note": "Punk/rockabilly tiki bar with live bands and a back room.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/otto-s-shrunken-head.jpg"
+    ],
     "status": "published"
   },
   {
@@ -171,6 +201,9 @@
     "price": "$5 token",
     "note": "Old-school (not digital) booth — grab a token from the bartender. Starts almost immediately.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/hifi-bar.jpg"
+    ],
     "status": "published"
   },
   {
@@ -186,6 +219,9 @@
     "price": "$5",
     "note": "Booth in the basement by the bar.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/the-smith-east-village.jpg"
+    ],
     "status": "published"
   },
   {
@@ -201,6 +237,9 @@
     "price": "$7/4",
     "note": "Vintage booth downstairs at the beloved pancake diner.",
     "sources": "Classic · Booth Beacon",
+    "photos": [
+      "/booths/bubby-s.jpg"
+    ],
     "status": "published"
   },
   {
@@ -216,6 +255,9 @@
     "price": "$12/3",
     "note": "True vintage machine — deep sepia, grainy 70s-look strips. Worth the develop wait.",
     "sources": "Soho Grand · Booth Beacon",
+    "photos": [
+      "/booths/the-roxy-hotel.jpg"
+    ],
     "status": "published"
   },
   {
@@ -230,6 +272,9 @@
     "verify": false,
     "note": "Newer B&W booth at the diner attached to the Soho Grand Hotel.",
     "sources": "Soho Grand · Booth Beacon",
+    "photos": [
+      "/booths/soho-diner-soho-grand.jpg"
+    ],
     "status": "published"
   },
   {
@@ -244,6 +289,9 @@
     "verify": false,
     "note": "Nautical-themed gastropub with a moody back room.",
     "sources": "Classic · Booth Beacon",
+    "photos": [
+      "/booths/the-folly.jpg"
+    ],
     "status": "published"
   },
   {
@@ -272,6 +320,9 @@
     "verify": true,
     "note": "Clothing store; booth presence varies by location — confirm before a special trip.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/reformation-soho.jpg"
+    ],
     "status": "published"
   },
   {
@@ -286,6 +337,9 @@
     "verify": false,
     "note": "Mexican restaurant/bar near Brookfield Place.",
     "sources": "Classic · Booth Beacon",
+    "photos": [
+      "/booths/el-vez.jpg"
+    ],
     "status": "published"
   },
   {
@@ -301,6 +355,9 @@
     "price": "$7.50",
     "note": "Dark lobby booth with a signature patterned curtain — your own little world.",
     "sources": "Soho Grand · Booth Beacon",
+    "photos": [
+      "/booths/ace-hotel.jpg"
+    ],
     "status": "published"
   },
   {
@@ -316,6 +373,9 @@
     "price": "$5",
     "note": "Booth downstairs near the bathrooms.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/the-smith-nomad.jpg"
+    ],
     "status": "published"
   },
   {
@@ -330,6 +390,9 @@
     "verify": false,
     "note": "Brasserie booth, 2nd Ave.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/the-smith-midtown-east.jpg"
+    ],
     "status": "published"
   },
   {
@@ -344,6 +407,9 @@
     "verify": false,
     "note": "Across from Lincoln Center — handy pre/post-theater.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/the-smith-lincoln-center.jpg"
+    ],
     "status": "published"
   },
   {
@@ -358,6 +424,9 @@
     "verify": false,
     "note": "Rooftop bar with a cowboy-themed photo area at the Moxy Times Square.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/magic-hour-rooftop.jpg"
+    ],
     "status": "published"
   },
   {
@@ -402,6 +471,9 @@
     "price": "$10",
     "note": "Seasonal — part of Bryant Park's Winter Village. Typically only open in the colder months.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/the-lodge-at-bryant-park.jpg"
+    ],
     "status": "published"
   },
   {
@@ -416,6 +488,9 @@
     "verify": false,
     "note": "Digital booth inside the consulate (mainly for official photos / weekday hours).",
     "sources": "Classic",
+    "photos": [
+      "/booths/german-consulate.jpg"
+    ],
     "status": "published"
   },
   {
@@ -431,6 +506,9 @@
     "price": "$10",
     "note": "B&W film booth inside the museum.",
     "sources": "Booth Beacon",
+    "photos": [
+      "/booths/whitney-museum-of-american-art.jpg"
+    ],
     "status": "published"
   },
   {
@@ -446,6 +524,9 @@
     "price": "$5",
     "note": "Popular B&W booth; quick develop. El Diablo taco truck in the backyard.",
     "sources": "Classic · Soho Grand · Booth Beacon",
+    "photos": [
+      "/booths/union-pool.jpg"
+    ],
     "status": "published"
   },
   {
@@ -460,6 +541,9 @@
     "verify": false,
     "note": "Dive bar with mini-golf out back, slushie machines and a booth.",
     "sources": "Classic",
+    "photos": [
+      "/booths/bushwick-country-club.jpg"
+    ],
     "status": "published"
   },
   {
@@ -474,6 +558,9 @@
     "verify": false,
     "note": "Film camera shop with a photo/Polaroid station; develops film too.",
     "sources": "Classic",
+    "photos": [
+      "/booths/brooklyn-film-camera-camera-store.jpg"
+    ],
     "status": "published"
   },
   {
@@ -488,6 +575,9 @@
     "verify": false,
     "note": "Greenpoint dive — cash only, ATM inside.",
     "sources": "Classic",
+    "photos": [
+      "/booths/twins-lounge.jpg"
+    ],
     "status": "published"
   },
   {
@@ -503,6 +593,9 @@
     "price": "$5–7",
     "note": "Dive bar; analog booth in the back room, rarely a wait. Foosball + pinball.",
     "sources": "Classic · Soho Grand · Booth Beacon",
+    "photos": [
+      "/booths/birdy-s.jpg"
+    ],
     "status": "published"
   },
   {
@@ -517,6 +610,9 @@
     "verify": false,
     "note": "Quirky neighborhood dive, pinball, cash only.",
     "sources": "Classic",
+    "photos": [
+      "/booths/coyote-club.jpg"
+    ],
     "status": "published"
   },
   {
@@ -531,6 +627,9 @@
     "verify": false,
     "note": "Easy-going bar with a patio.",
     "sources": "Classic",
+    "photos": [
+      "/booths/marco-s.jpg"
+    ],
     "status": "published"
   },
   {
@@ -545,6 +644,9 @@
     "verify": false,
     "note": "Spacious wood-bar spot with a yard. Cash only.",
     "sources": "Classic",
+    "photos": [
+      "/booths/old-stanley-s.jpg"
+    ],
     "status": "published"
   },
   {
@@ -559,6 +661,9 @@
     "verify": false,
     "note": "True Bushwick dive with pool and a back patio.",
     "sources": "Classic",
+    "photos": [
+      "/booths/bootleg.jpg"
+    ],
     "status": "published"
   },
   {
@@ -587,6 +692,9 @@
     "verify": false,
     "note": "Large two-floor dive with pool upstairs.",
     "sources": "Classic",
+    "photos": [
+      "/booths/carmelo-s.jpg"
+    ],
     "status": "published"
   },
   {
@@ -601,6 +709,9 @@
     "verify": false,
     "note": "Live-music bar/venue, short walk from the L.",
     "sources": "Classic",
+    "photos": [
+      "/booths/tv-eye.jpg"
+    ],
     "status": "published"
   },
   {
@@ -615,6 +726,9 @@
     "verify": false,
     "note": "Newer Bushwick bar — leather couches, food truck outside, dog-friendly. Photobooth inside.",
     "sources": "Photobooth.net",
+    "photos": [
+      "/booths/hank-s-bar.jpg"
+    ],
     "status": "published"
   },
   {
@@ -629,6 +743,9 @@
     "verify": false,
     "note": "Neighborhood Bushwick bar with pool, darts and a big back projector. Cash only, ATM inside.",
     "sources": "Photobooth.net",
+    "photos": [
+      "/booths/lou-s-athletic-club.jpg"
+    ],
     "status": "published"
   },
   {
@@ -643,6 +760,9 @@
     "verify": true,
     "note": "Vintage clothing chain with a booth. Two NYC stores (SoHo + Chelsea) — confirm which has the machine before making the trip.",
     "sources": "Photobooth.net",
+    "photos": [
+      "/booths/the-re-shop.jpg"
+    ],
     "status": "published"
   }
 ]

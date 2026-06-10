@@ -36,15 +36,20 @@ export default function PreviewCard({
         ×
       </button>
       <button className="preview-main" onClick={onOpen}>
-        <span
-          className="thumb"
-          style={{
-            background: `linear-gradient(135deg, ${color}22, ${color}44)`,
-            color,
-          }}
-        >
-          {initial || "📷"}
-        </span>
+        {b.photos?.[0] ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="thumb thumb-img" src={b.photos[0]} alt={b.name} loading="lazy" />
+        ) : (
+          <span
+            className="thumb"
+            style={{
+              background: `linear-gradient(135deg, ${color}22, ${color}44)`,
+              color,
+            }}
+          >
+            {initial || "📷"}
+          </span>
+        )}
         <span className="preview-body">
           <span className="preview-name">{b.name}</span>
           <span className="preview-addr">{place}</span>

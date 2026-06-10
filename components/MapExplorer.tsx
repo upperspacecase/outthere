@@ -332,15 +332,20 @@ function BoothCard({
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
   return (
     <button className={`card${selected ? " sel" : ""}`} onClick={onSelect}>
-      <span
-        className="thumb"
-        style={{
-          background: `linear-gradient(135deg, ${color}22, ${color}44)`,
-          color,
-        }}
-      >
-        {initial || "📷"}
-      </span>
+      {b.photos?.[0] ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="thumb thumb-img" src={b.photos[0]} alt={b.name} loading="lazy" />
+      ) : (
+        <span
+          className="thumb"
+          style={{
+            background: `linear-gradient(135deg, ${color}22, ${color}44)`,
+            color,
+          }}
+        >
+          {initial || "📷"}
+        </span>
+      )}
       <span className="card-body">
         <span className="card-top">
           <span className="card-name">{b.name}</span>

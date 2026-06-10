@@ -276,6 +276,10 @@ select.dd:focus {
   font-size: 1.5rem;
   font-weight: 800;
 }
+.thumb-img {
+  display: block;
+  object-fit: cover;
+}
 .card-body {
   flex: 1;
   min-width: 0;
