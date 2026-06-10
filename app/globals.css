@@ -34,13 +34,24 @@ body {
   color: var(--ink);
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Persistent top bar (always visible, desktop + mobile) ---- */
+.topbar {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
 }
 
 /* ---- Shell ---- */
 .app {
   display: flex;
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
 }
 .panel {
   width: 440px;
@@ -1111,7 +1122,7 @@ select.dd:focus {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1200; /* above the booth detail overlay (1100) */
   display: grid;
   place-items: center;
   background: rgba(20, 25, 35, 0.5);
@@ -1219,9 +1230,10 @@ select.dd:focus {
   }
   .app {
     display: block;
-    height: 100vh;
-    height: 100dvh;
     position: relative;
+  }
+  .topbar {
+    padding: 12px 18px;
   }
   /* Both views fill the screen above the bottom nav (58px). */
   .panel,

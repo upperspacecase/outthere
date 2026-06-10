@@ -21,8 +21,6 @@ import {
   formatMiles,
 } from "@/lib/display";
 
-type Condition = "any" | "working" | "broken";
-
 const PRICE_OPTS: { key: PriceTier; label: string }[] = [
   { key: "any", label: "Any price" },
   { key: "low", label: "Under $8" },
@@ -49,7 +47,6 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const refresh = useCallback(() => router.refresh(), [router]);
 
   const [priceTier, setPriceTier] = useState<PriceTier>("any");
-  const [condition, setCondition] = useState<Condition>("any");
   const [distance, setDistance] = useState<Dist>("any");
 
   const [mobileView, setMobileView] = useState<MobileView>("map");
@@ -128,7 +125,6 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const filtered = useMemo(() => {
     const list = booths.filter((b) => {
       if (navTab === "saved" && !saved.has(b.slug)) return false;
-      if (condition !== "any" && b.condition !== condition) return false;
       if (!matchesPriceTier(b, priceTier)) return false;
       if (distance !== "any" && userLoc) {
         if (distanceMiles(userLoc, b) > DIST_LIMITS[distance]) return false;
@@ -141,7 +137,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
       );
     }
     return list;
-  }, [booths, condition, priceTier, distance, navTab, saved, userLoc]);
+  }, [booths, priceTier, distance, navTab, saved, userLoc]);
 
   const detailBooth = detailSlug
     ? booths.find((b) => b.slug === detailSlug) ?? null
@@ -172,16 +168,6 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
             {o.label}
           </option>
         ))}
-      </select>
-      <select
-        className="dd"
-        aria-label="Filter by condition"
-        value={condition}
-        onChange={(e) => setCondition(e.target.value as Condition)}
-      >
-        <option value="any">Any condition</option>
-        <option value="working">Working</option>
-        <option value="broken">Reported broken</option>
       </select>
       <select
         className="dd"
@@ -216,15 +202,16 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   );
 
   return (
+    <>
+      <header className="topbar">
+        <h1>
+          NYC Photo Booth <span className="accent-word">Map</span>
+        </h1>
+        <p className="subtitle">The real world is out there.</p>
+      </header>
+
     <div className="app" data-view={mobileView}>
       <aside className="panel">
-        <div className="panel-head">
-          <h1>
-            NYC Photo Booth <span className="accent-word">Map</span>
-          </h1>
-          <p className="subtitle">The real world is out there.</p>
-        </div>
-
         <div className="filters">{filterBar}</div>
 
         {viewToggle}
@@ -262,7 +249,6 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
 
       <div className="map-col">
         <div className="map-topbar">
-          <p className="map-tagline">The real world is out there.</p>
           {filterBar}
           {viewToggle}
         </div>
@@ -333,6 +319,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
         />
       )}
     </div>
+    </>
   );
 }
 
