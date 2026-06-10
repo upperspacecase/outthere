@@ -189,6 +189,53 @@ h1 .accent-word::after {
   background: #fff;
 }
 
+/* ---- Filter dropdowns (shared list + map) ---- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+select.dd {
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background-color: #fff;
+  border-radius: 999px;
+  padding: 6px 30px 6px 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%235b6168' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 11px;
+  transition: 0.12s;
+}
+select.dd:hover {
+  border-color: #d4d8de;
+}
+select.dd:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(239, 87, 119, 0.12);
+}
+
+/* Brand tagline chip — shown over the map on mobile map view. */
+.map-tagline {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  background: #fff;
+  align-self: flex-start;
+  padding: 5px 13px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(20, 25, 35, 0.1);
+}
+
 /* ---- List ---- */
 #list {
   flex: 1;
@@ -1204,28 +1251,18 @@ h1 .accent-word::after {
   .leaflet-control-zoom {
     display: none;
   }
-  .map-filter-bar {
-    display: flex;
-    gap: 7px;
+  .map-topbar .filter-bar {
+    flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
     padding: 2px 0;
   }
-  .map-filter-bar::-webkit-scrollbar {
+  .map-topbar .filter-bar::-webkit-scrollbar {
     display: none;
   }
-  .map-filter-bar .pill {
+  .map-topbar select.dd {
     flex: 0 0 auto;
-    background: #fff;
     box-shadow: 0 2px 8px rgba(20, 25, 35, 0.08);
-  }
-  .map-filter-bar .pill.active {
-    background: var(--ink);
-    color: #fff;
-  }
-  .map-filter-bar .pill.open-toggle.on {
-    background: var(--open);
-    color: #fff;
   }
   .map-topbar .view-toggle {
     margin: 0;

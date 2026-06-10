@@ -46,7 +46,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const [openOnly, setOpenOnly] = useState(false);
   const [distance, setDistance] = useState<Dist>("any");
 
-  const [mobileView, setMobileView] = useState<MobileView>("list");
+  const [mobileView, setMobileView] = useState<MobileView>("map");
   const [navTab, setNavTab] = useState<NavTab>("explore");
   const [selected, setSelected] = useState<string | null>(null);
   const [detailSlug, setDetailSlug] = useState<string | null>(null);
@@ -148,31 +148,43 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
     setDetailSlug(slug);
   }
 
-  const pricePills = PRICE_OPTS.map((o) => (
-    <button
-      key={o.key}
-      className={`pill${priceTier === o.key ? " active" : ""}`}
-      onClick={() => setPriceTier(o.key)}
-    >
-      {o.label}
-    </button>
-  ));
-  const distPills = DIST_OPTS.map((o) => (
-    <button
-      key={o.key}
-      className={`pill${distance === o.key ? " active" : ""}`}
-      onClick={() => pickDistance(o.key)}
-    >
-      {o.label}
-    </button>
-  ));
-  const openPill = (
-    <button
-      className={`pill open-toggle${openOnly ? " on" : ""}`}
-      onClick={() => setOpenOnly((v) => !v)}
-    >
-      <span className="open-dot-sm" /> Open now
-    </button>
+  // One compact filter bar (dropdowns), reused on both the list and the map.
+  const filterBar = (
+    <div className="filter-bar">
+      <select
+        className="dd"
+        aria-label="Filter by price"
+        value={priceTier}
+        onChange={(e) => setPriceTier(e.target.value as PriceTier)}
+      >
+        {PRICE_OPTS.map((o) => (
+          <option key={o.key} value={o.key}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <select
+        className="dd"
+        aria-label="Filter by availability"
+        value={openOnly ? "open" : "any"}
+        onChange={(e) => setOpenOnly(e.target.value === "open")}
+      >
+        <option value="any">Any time</option>
+        <option value="open">Open now</option>
+      </select>
+      <select
+        className="dd"
+        aria-label="Filter by distance"
+        value={distance}
+        onChange={(e) => pickDistance(e.target.value as Dist)}
+      >
+        {DIST_OPTS.map((o) => (
+          <option key={o.key} value={o.key}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 
   const viewToggle = (
@@ -199,26 +211,10 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           <h1>
             NYC Photo Booth <span className="accent-word">Map</span>
           </h1>
-          <p className="subtitle">
-            {booths.length} real, visitable photo booths across Manhattan,
-            Brooklyn, and Queens.
-          </p>
+          <p className="subtitle">The real world is out there.</p>
         </div>
 
-        <div className="filters">
-          <div className="filter-row">
-            <span className="filter-label">Price</span>
-            <div className="pills">{pricePills}</div>
-          </div>
-          <div className="filter-row">
-            <span className="filter-label">Availability</span>
-            <div className="pills">{openPill}</div>
-          </div>
-          <div className="filter-row">
-            <span className="filter-label">Distance</span>
-            <div className="pills">{distPills}</div>
-          </div>
-        </div>
+        <div className="filters">{filterBar}</div>
 
         {viewToggle}
 
@@ -255,11 +251,8 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
 
       <div className="map-col">
         <div className="map-topbar">
-          <div className="map-filter-bar">
-            {openPill}
-            {pricePills}
-            {distPills}
-          </div>
+          <p className="map-tagline">The real world is out there.</p>
+          {filterBar}
           {viewToggle}
         </div>
 
