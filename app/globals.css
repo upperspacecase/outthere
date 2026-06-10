@@ -332,6 +332,39 @@ select.dd:focus {
   border-radius: 999px;
   margin-top: 7px;
 }
+.cond {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.cond-working {
+  background: rgba(47, 179, 126, 0.16);
+  color: var(--open);
+}
+.cond-broken {
+  background: rgba(239, 87, 119, 0.16);
+  color: var(--accent-dark);
+}
+.detail-edit {
+  margin-top: 14px;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: var(--line-soft);
+  border: none;
+  border-radius: 999px;
+  padding: 11px;
+  cursor: pointer;
+}
+.detail-edit:hover {
+  background: #e4e8ec;
+  color: var(--ink);
+}
 .card-bottom {
   display: flex;
   align-items: flex-end;

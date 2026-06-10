@@ -30,42 +30,86 @@ export async function getPublishedBooths(): Promise<Booth[]> {
   }
 }
 
-export type BoothSubmission = {
+const clean = (s?: string) => {
+  const t = s?.trim();
+  return t ? t : undefined;
+};
+
+export type BoothInput = {
   name: string;
   address: string;
   borough: Borough;
   type: BoothType;
   price?: string;
+  hours?: string;
+  payment?: string;
+  condition?: "working" | "broken";
   note?: string;
   lat: number;
   lng: number;
 };
 
-export async function createSubmission(input: BoothSubmission): Promise<void> {
+// Anyone can add a booth — it publishes immediately (no moderation).
+export async function createBooth(input: BoothInput): Promise<void> {
   const col = await collection();
-  const slug = `submitted-${input.name}-${input.address}`
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  const slug =
+    `community-${input.name}-${input.address}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || `community-${input.lat}-${input.lng}`;
   await col.updateOne(
     { slug },
     {
-      $setOnInsert: {
+      $set: {
         slug,
         name: input.name.trim(),
         address: input.address.trim(),
-        hood: input.address.trim(),
+        hood: clean(input.address),
         borough: input.borough,
         lat: input.lat,
         lng: input.lng,
         category: "photo-booth",
         type: input.type,
-        price: input.price?.trim() || undefined,
-        note: input.note?.trim() || undefined,
-        sources: "Community submission",
-        status: "pending",
+        price: clean(input.price),
+        hours: clean(input.hours),
+        payment: clean(input.payment),
+        condition: input.condition,
+        note: clean(input.note),
+        sources: "Community",
+        status: "published",
       } satisfies Booth,
     },
     { upsert: true },
   );
+}
+
+export type BoothEdit = {
+  price?: string;
+  hours?: string;
+  payment?: string;
+  condition?: string;
+  note?: string;
+};
+
+// Anyone can edit a booth's crowdsourced fields — applies immediately.
+export async function updateBooth(slug: string, edit: BoothEdit): Promise<boolean> {
+  const col = await collection();
+  const set: Record<string, string> = {};
+  const unset: Record<string, "" > = {};
+  for (const key of ["price", "hours", "payment", "note"] as const) {
+    const v = edit[key]?.trim();
+    if (v) set[key] = v;
+    else unset[key] = "";
+  }
+  if (edit.condition === "working" || edit.condition === "broken") {
+    set.condition = edit.condition;
+  } else {
+    unset.condition = "";
+  }
+  const update: Record<string, unknown> = {};
+  if (Object.keys(set).length) update.$set = set;
+  if (Object.keys(unset).length) update.$unset = unset;
+  if (!Object.keys(update).length) return true;
+  const res = await col.updateOne({ slug, status: "published" }, update);
+  return res.matchedCount > 0;
 }

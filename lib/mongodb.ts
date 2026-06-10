@@ -15,7 +15,8 @@ function getClientPromise(): Promise<MongoClient> {
   };
 
   clientPromise =
-    globalForMongo._outThereMongo ?? new MongoClient(uri).connect();
+    globalForMongo._outThereMongo ??
+    new MongoClient(uri, { ignoreUndefined: true }).connect();
   if (process.env.NODE_ENV !== "production") {
     globalForMongo._outThereMongo = clientPromise;
   }

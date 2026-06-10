@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import BoothMap from "./BoothMap";
-import SubmitModal from "./SubmitModal";
+import BoothForm from "./BoothForm";
 import BoothDetail from "./BoothDetail";
 import PreviewCard from "./PreviewCard";
 import { CompassIcon, BookmarkIcon, PlusIcon, ListIcon, MapIcon } from "./icons";
@@ -11,7 +12,7 @@ import {
   markerColor,
   badgeLabel,
   directionsUrl,
-  isOpenNow,
+  CONDITION_LABEL,
   priceLabel,
   matchesPriceTier,
   type PriceTier,
@@ -19,6 +20,8 @@ import {
   distanceMiles,
   formatMiles,
 } from "@/lib/display";
+
+type Condition = "any" | "working" | "broken";
 
 const PRICE_OPTS: { key: PriceTier; label: string }[] = [
   { key: "any", label: "Any price" },
@@ -42,15 +45,19 @@ type NavTab = "explore" | "saved";
 const SAVED_KEY = "outthere:saved";
 
 export default function MapExplorer({ booths }: { booths: Booth[] }) {
+  const router = useRouter();
+  const refresh = useCallback(() => router.refresh(), [router]);
+
   const [priceTier, setPriceTier] = useState<PriceTier>("any");
-  const [openOnly, setOpenOnly] = useState(false);
+  const [condition, setCondition] = useState<Condition>("any");
   const [distance, setDistance] = useState<Dist>("any");
 
   const [mobileView, setMobileView] = useState<MobileView>("map");
   const [navTab, setNavTab] = useState<NavTab>("explore");
   const [selected, setSelected] = useState<string | null>(null);
   const [detailSlug, setDetailSlug] = useState<string | null>(null);
-  const [showSubmit, setShowSubmit] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [editSlug, setEditSlug] = useState<string | null>(null);
   const [saved, setSaved] = useState<Set<string>>(new Set());
 
   // Shared geolocation (the Near me button and the distance filter both use it).
@@ -121,7 +128,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
   const filtered = useMemo(() => {
     const list = booths.filter((b) => {
       if (navTab === "saved" && !saved.has(b.slug)) return false;
-      if (openOnly && !isOpenNow(b)) return false;
+      if (condition !== "any" && b.condition !== condition) return false;
       if (!matchesPriceTier(b, priceTier)) return false;
       if (distance !== "any" && userLoc) {
         if (distanceMiles(userLoc, b) > DIST_LIMITS[distance]) return false;
@@ -134,10 +141,13 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
       );
     }
     return list;
-  }, [booths, openOnly, priceTier, distance, navTab, saved, userLoc]);
+  }, [booths, condition, priceTier, distance, navTab, saved, userLoc]);
 
   const detailBooth = detailSlug
     ? booths.find((b) => b.slug === detailSlug) ?? null
+    : null;
+  const editBooth = editSlug
+    ? booths.find((b) => b.slug === editSlug) ?? null
     : null;
   const previewBooth = selected
     ? filtered.find((b) => b.slug === selected) ?? null
@@ -165,12 +175,13 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
       </select>
       <select
         className="dd"
-        aria-label="Filter by availability"
-        value={openOnly ? "open" : "any"}
-        onChange={(e) => setOpenOnly(e.target.value === "open")}
+        aria-label="Filter by condition"
+        value={condition}
+        onChange={(e) => setCondition(e.target.value as Condition)}
       >
-        <option value="any">Any time</option>
-        <option value="open">Open now</option>
+        <option value="any">Any condition</option>
+        <option value="working">Working</option>
+        <option value="broken">Reported broken</option>
       </select>
       <select
         className="dd"
@@ -242,7 +253,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           <span className="foot-count">{filtered.length} booths mapped</span>
           <span className="foot-cta">
             Have a photo booth to share?{" "}
-            <button className="link" onClick={() => setShowSubmit(true)}>
+            <button className="link" onClick={() => setShowAdd(true)}>
               Submit a booth
             </button>
           </span>
@@ -260,7 +271,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           booths={filtered}
           selected={selected}
           onSelect={setSelected}
-          onAddBooth={() => setShowSubmit(true)}
+          onAddBooth={() => setShowAdd(true)}
           userLoc={userLoc}
           locating={locating}
           locError={locError}
@@ -294,7 +305,7 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           <BookmarkIcon filled={navTab === "saved"} /> Saved
           {saved.size > 0 && <span className="nav-badge">{saved.size}</span>}
         </button>
-        <button onClick={() => setShowSubmit(true)}>
+        <button onClick={() => setShowAdd(true)}>
           <PlusIcon /> Submit
         </button>
       </nav>
@@ -305,11 +316,22 @@ export default function MapExplorer({ booths }: { booths: Booth[] }) {
           userLoc={userLoc}
           saved={saved.has(detailBooth.slug)}
           onToggleSave={() => toggleSave(detailBooth.slug)}
+          onEdit={() => setEditSlug(detailBooth.slug)}
           onClose={() => setDetailSlug(null)}
         />
       )}
 
-      {showSubmit && <SubmitModal onClose={() => setShowSubmit(false)} />}
+      {showAdd && (
+        <BoothForm mode="add" onClose={() => setShowAdd(false)} onSaved={refresh} />
+      )}
+      {editBooth && (
+        <BoothForm
+          mode="edit"
+          booth={editBooth}
+          onClose={() => setEditSlug(null)}
+          onSaved={refresh}
+        />
+      )}
     </div>
   );
 }
@@ -326,7 +348,6 @@ function BoothCard({
   onSelect: () => void;
 }) {
   const color = markerColor(b);
-  const open = isOpenNow(b);
   let place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
   if (userLoc) place += ` · ${formatMiles(distanceMiles(userLoc, b))}`;
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
@@ -349,9 +370,11 @@ function BoothCard({
       <span className="card-body">
         <span className="card-top">
           <span className="card-name">{b.name}</span>
-          <span className={`open-now${open ? "" : " closed"}`}>
-            <span className="open-dot" /> {open ? "Open now" : "Closed"}
-          </span>
+          {b.condition && (
+            <span className={`cond cond-${b.condition}`}>
+              {CONDITION_LABEL[b.condition]}
+            </span>
+          )}
         </span>
         <span className="card-addr">{place}</span>
         <span className="type-tag" style={{ background: `${color}1f`, color }}>
@@ -360,7 +383,7 @@ function BoothCard({
         <span className="card-bottom">
           <span className="price-block">
             <span className="price-label">Price</span>
-            <span className="price-val">{priceLabel(b)}</span>
+            <span className="price-val">{priceLabel(b) ?? "Not listed"}</span>
           </span>
           <a
             className="directions"

@@ -6,11 +6,7 @@ import {
   markerColor,
   badgeLabel,
   directionsUrl,
-  isOpenNow,
-  hoursLabel,
-  ratingValue,
-  reviewCount,
-  queueLabel,
+  CONDITION_LABEL,
   priceLabel,
   paymentLabel,
   distanceMiles,
@@ -21,8 +17,6 @@ import {
   PinIcon,
   ClockIcon,
   CardIcon,
-  StarIcon,
-  CheckIcon,
   BookmarkIcon,
   CompassIcon,
 } from "./icons";
@@ -32,12 +26,14 @@ export default function BoothDetail({
   userLoc,
   saved,
   onToggleSave,
+  onEdit,
   onClose,
 }: {
   booth: Booth;
   userLoc: LatLng | null;
   saved: boolean;
   onToggleSave: () => void;
+  onEdit: () => void;
   onClose: () => void;
 }) {
   // Close on Escape.
@@ -48,7 +44,6 @@ export default function BoothDetail({
   }, [onClose]);
 
   const color = markerColor(b);
-  const open = isOpenNow(b);
   const payment = paymentLabel(b);
   const place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
@@ -90,9 +85,11 @@ export default function BoothDetail({
               {badgeLabel(b)}
             </span>
             {b.sources && <span className="tag-muted">Crowdsourced</span>}
-            <span className={`tag-status ${open ? "is-open" : "is-closed"}`}>
-              {open ? "Open now" : "Closed"}
-            </span>
+            {b.condition && (
+              <span className={`cond cond-${b.condition}`}>
+                {CONDITION_LABEL[b.condition]}
+              </span>
+            )}
           </div>
 
           <div className="detail-rows">
@@ -109,37 +106,23 @@ export default function BoothDetail({
             <div className="drow">
               <ClockIcon className="drow-ico" />
               <div>
-                <div className="drow-main">{hoursLabel(b)}</div>
-                <div className={`drow-sub ${open ? "open" : "closed"}`}>
-                  {open ? "Open now" : "Closed now"}
-                </div>
+                <div className="drow-main">{b.hours ?? "Hours not listed"}</div>
+                {!b.hours && (
+                  <div className="drow-sub">Know them? Tap Update to add.</div>
+                )}
               </div>
             </div>
             <div className="drow">
               <CardIcon className="drow-ico" />
               <div>
-                <div className="drow-main">{priceLabel(b)}</div>
+                <div className="drow-main">{priceLabel(b) ?? "Price not listed"}</div>
                 {payment && <div className="drow-sub">{payment}</div>}
-              </div>
-            </div>
-            <div className="drow">
-              <StarIcon className="drow-ico star" />
-              <div>
-                <div className="drow-main">
-                  {ratingValue(b).toFixed(1)}{" "}
-                  <span className="drow-sub-inline">
-                    · {reviewCount(b)} reviews
-                  </span>
-                </div>
-                <div className="drow-sub">{queueLabel(b)}</div>
               </div>
             </div>
           </div>
 
           {b.note && <p className="detail-note">{b.note}</p>}
-          {b.sources && (
-            <p className="detail-src">Listed by {b.sources}</p>
-          )}
+          {b.sources && <p className="detail-src">Listed by {b.sources}</p>}
 
           <div className="detail-actions">
             <a
@@ -158,9 +141,9 @@ export default function BoothDetail({
             </button>
           </div>
 
-          <div className="detail-verified">
-            <CheckIcon /> Verified recently
-          </div>
+          <button className="detail-edit" onClick={onEdit}>
+            Update this booth — anyone can edit
+          </button>
         </div>
       </div>
     </div>

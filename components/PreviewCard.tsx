@@ -5,13 +5,12 @@ import {
   markerColor,
   badgeLabel,
   directionsUrl,
-  isOpenNow,
-  ratingValue,
+  CONDITION_LABEL,
   distanceMiles,
   formatMiles,
   type LatLng,
 } from "@/lib/display";
-import { StarIcon, CompassIcon } from "./icons";
+import { CompassIcon } from "./icons";
 
 export default function PreviewCard({
   booth: b,
@@ -25,7 +24,6 @@ export default function PreviewCard({
   onClose: () => void;
 }) {
   const color = markerColor(b);
-  const open = isOpenNow(b);
   let place = b.address ?? (b.hood ? `${b.hood}, ${b.borough}` : b.borough);
   if (userLoc) place += ` · ${formatMiles(distanceMiles(userLoc, b))}`;
   const initial = b.name.replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase();
@@ -57,13 +55,12 @@ export default function PreviewCard({
             <span className="type-tag" style={{ background: `${color}1f`, color }}>
               {badgeLabel(b)}
             </span>
-            <span className="preview-rating">
-              <StarIcon className="prev-star" /> {ratingValue(b).toFixed(1)}
-            </span>
             {b.price && <span className="preview-price">{b.price}</span>}
-            <span className={`preview-open ${open ? "open" : "closed"}`}>
-              {open ? "Open" : "Closed"}
-            </span>
+            {b.condition && (
+              <span className={`cond cond-${b.condition}`}>
+                {CONDITION_LABEL[b.condition]}
+              </span>
+            )}
           </span>
         </span>
       </button>
