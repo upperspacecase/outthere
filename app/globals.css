@@ -32,7 +32,8 @@ body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--ink);
-  height: 100vh;
+  height: 100vh; /* fallback */
+  height: 100dvh; /* visible area excluding the iOS Safari toolbar */
   overflow: hidden;
   display: flex;
   flex-direction: column;
